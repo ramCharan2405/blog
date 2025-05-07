@@ -1,14 +1,12 @@
-
-import './App.css'
+import "./App.css";
 
 function App() {
-
-
+  console.log(import.meta.env.VITE_APPWRITE_URL)
   return (
     <>
-     <h1>ram charan</h1>
+      <h1>ram charan</h1>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
