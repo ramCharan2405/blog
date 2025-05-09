@@ -2,6 +2,14 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import Logo from '../Logo'
 
+function Container({children}) {
+  return (
+    <div className='w-full max-w-7xl mx-auto px-4'>
+      {children}
+    </div>
+  )
+}
+
 function Footer() {
   return (
     <section className="relative overflow-hidden py-10 bg-gray-400 border border-t-2 border-t-black">
@@ -140,4 +148,4 @@ function Footer() {
   )
 }
 
-export default Footer
+export default Container
