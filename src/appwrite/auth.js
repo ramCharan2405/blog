@@ -27,6 +27,17 @@ class AuthService {
         try {
             console.log("Creating account for:", email);
 
+            // First, try to delete any existing session
+            try {
+                const currentSession = await this.account.getSession('current');
+                if (currentSession) {
+                    console.log("Found existing session, deleting it first");
+                    await this.account.deleteSession('current');
+                }
+            } catch (sessionError) {
+                console.log("No active session found, proceeding with account creation");
+            }
+
             const userAccount = await this.account.create(
                 ID.unique(),
                 email,
@@ -38,7 +49,7 @@ class AuthService {
                 console.log("Account created successfully:", userAccount);
 
                 try {
-                    const session = await this.account.createEmailPasswordSession(email, password);
+                    const session = await this.account.createEmailSession(email, password);
                     console.log("Session created after signup:", session);
 
                     if (session) {
@@ -72,7 +83,7 @@ class AuthService {
                 console.log("No active session found, proceeding with login");
             }
 
-            const session = await this.account.createEmailPasswordSession(email, password);
+            const session = await this.account.createEmailSession(email, password);
             console.log("Session created during login:", session);
 
             if (session) {
