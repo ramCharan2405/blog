@@ -1,43 +1,19 @@
-import { Client, Account, ID } from "appwrite";
-import conf from "../conf/conf";
+import { Account, ID } from "appwrite";
+import client from "./client";
 
 class AuthService {
-    client;
     account;
 
     constructor() {
         try {
-            this.client = new Client()
-                .setEndpoint(conf.appwriteUrl)
-                .setProject(conf.appwriteProjectId);
-
-            this.account = new Account(this.client);
-
-            console.log("Auth service initialized with:", {
-                endpoint: conf.appwriteUrl,
-                projectId: conf.appwriteProjectId
-            });
+            this.account = new Account(client);
         } catch (error) {
-            console.error("Failed to initialize auth service:", error);
             throw error;
         }
     }
 
     async createAccount({ email, password, name }) {
         try {
-            console.log("Creating account for:", email);
-
-            // First, try to delete any existing session
-            try {
-                const currentSession = await this.account.getSession('current');
-                if (currentSession) {
-                    console.log("Found existing session, deleting it first");
-                    await this.account.deleteSession('current');
-                }
-            } catch (sessionError) {
-                console.log("No active session found, proceeding with account creation");
-            }
-
             const userAccount = await this.account.create(
                 ID.unique(),
                 email,
@@ -46,103 +22,59 @@ class AuthService {
             );
 
             if (userAccount) {
-                console.log("Account created successfully:", userAccount);
-
-                try {
-                    const session = await this.account.createEmailSession(email, password);
-                    console.log("Session created after signup:", session);
-
-                    if (session) {
-                        const userData = await this.account.get();
-                        console.log("User data after signup:", userData);
-                        return userData;
-                    }
-                } catch (sessionError) {
-                    console.error("Failed to create session after signup:", sessionError);
-                    throw new Error("Account created but failed to create session");
-                }
+                const session = await this.account.createEmailSession(email, password);
+                return userAccount;
             }
             throw new Error("Failed to create account");
         } catch (error) {
-            console.error("Appwrite service :: createAccount :: error", error);
             throw error;
         }
     }
 
     async login({ email, password }) {
         try {
-            console.log("Attempting login for:", email);
-
+            // First check if user is already logged in
             try {
-                const currentSession = await this.account.getSession('current');
-                if (currentSession) {
-                    console.log("Found existing session, logging out first");
-                    await this.account.deleteSession('current');
+                const currentUser = await this.account.get();
+                if (currentUser) {
+                    return currentUser;
                 }
-            } catch (sessionError) {
-                console.log("No active session found, proceeding with login");
+            } catch (error) {
+                // If get() fails, user is not logged in, continue with login
             }
 
+            // Create new session
             const session = await this.account.createEmailSession(email, password);
-            console.log("Session created during login:", session);
-
-            if (session) {
-                const userData = await this.account.get();
-                console.log("User data after login:", userData);
-                return userData;
-            }
-            throw new Error("Failed to create session");
+            const userData = await this.account.get();
+            return userData;
         } catch (error) {
-            console.error("Appwrite service :: login :: error", error);
             throw error;
         }
     }
 
     async getCurrentUser() {
         try {
-            try {
-                const session = await this.account.getSession('current');
-                console.log("Current session found:", session);
-            } catch (sessionError) {
-                console.log("No active session found:", sessionError.message);
-                return null;
-            }
-
             const user = await this.account.get();
-            console.log("Current user data:", user);
             return user;
         } catch (error) {
-            console.log("Failed to get user data:", error.message);
             return null;
         }
     }
 
     async logout() {
         try {
-            try {
-                const session = await this.account.getSession('current');
-                if (session) {
-                    await this.account.deleteSession('current');
-                    console.log("Logged out successfully");
-                } else {
-                    console.log("No active session to logout from");
-                }
-            } catch (sessionError) {
-                console.log("No session found during logout:", sessionError.message);
-            }
+            await this.account.deleteSession('current');
+            return true;
         } catch (error) {
-            console.error("Appwrite service :: logout :: error", error);
             throw error;
         }
     }
 
     async isAuthenticated() {
         try {
-            const session = await this.account.getSession('current');
-            console.log("Authentication check - Session:", session);
-            return !!session;
+            const user = await this.account.get();
+            return !!user;
         } catch (error) {
-            console.log("Authentication check failed:", error.message);
             return false;
         }
     }
