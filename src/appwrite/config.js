@@ -28,7 +28,9 @@ class AppwriteService {
         try {
             this.client
                 .setEndpoint(conf.appwriteUrl)
-                .setProject(conf.appwriteProjectId);
+                .setProject(conf.appwriteProjectId)
+                .setLocale('en-US')
+                .setSelfSigned(true); // Enable for development, disable for production
 
             this.databases = new Databases(this.client);
             this.bucket = new Storage(this.client);
