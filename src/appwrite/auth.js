@@ -7,12 +7,10 @@ class AuthService {
 
     constructor() {
         try {
-            // Initialize the client with the latest configuration
             this.client = new Client()
                 .setEndpoint(conf.appwriteUrl)
                 .setProject(conf.appwriteProjectId);
 
-            // Initialize the account service
             this.account = new Account(this.client);
 
             console.log("Auth service initialized with:", {
@@ -29,7 +27,6 @@ class AuthService {
         try {
             console.log("Creating account for:", email);
 
-            // Create the account with the latest method
             const userAccount = await this.account.create(
                 ID.unique(),
                 email,
@@ -40,7 +37,6 @@ class AuthService {
             if (userAccount) {
                 console.log("Account created successfully:", userAccount);
 
-                // Create session after account creation using the latest method
                 try {
                     const session = await this.account.createEmailPasswordSession(email, password);
                     console.log("Session created after signup:", session);
@@ -66,7 +62,6 @@ class AuthService {
         try {
             console.log("Attempting login for:", email);
 
-            // First check if there's an active session
             try {
                 const currentSession = await this.account.getSession('current');
                 if (currentSession) {
@@ -77,7 +72,6 @@ class AuthService {
                 console.log("No active session found, proceeding with login");
             }
 
-            // Now create new session
             const session = await this.account.createEmailPasswordSession(email, password);
             console.log("Session created during login:", session);
 
@@ -95,7 +89,6 @@ class AuthService {
 
     async getCurrentUser() {
         try {
-            // First try to get the current session
             try {
                 const session = await this.account.getSession('current');
                 console.log("Current session found:", session);
@@ -104,7 +97,6 @@ class AuthService {
                 return null;
             }
 
-            // If we have a session, get the user data
             const user = await this.account.get();
             console.log("Current user data:", user);
             return user;
@@ -116,7 +108,6 @@ class AuthService {
 
     async logout() {
         try {
-            // Try to get the current session first
             try {
                 const session = await this.account.getSession('current');
                 if (session) {
@@ -134,7 +125,6 @@ class AuthService {
         }
     }
 
-    // Helper method to check if user is authenticated
     async isAuthenticated() {
         try {
             const session = await this.account.getSession('current');
@@ -147,7 +137,6 @@ class AuthService {
     }
 }
 
-// Create a single instance
 const authService = new AuthService();
 
 export { authService };

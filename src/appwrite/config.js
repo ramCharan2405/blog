@@ -8,7 +8,6 @@ class AppwriteService {
     account;
 
     constructor() {
-        // Debug logging
         console.log("Initializing Appwrite with config:", {
             url: conf.appwriteUrl,
             projectId: conf.appwriteProjectId,
@@ -28,9 +27,7 @@ class AppwriteService {
         try {
             this.client
                 .setEndpoint(conf.appwriteUrl)
-                .setProject(conf.appwriteProjectId)
-                .setLocale('en-US')
-                .setSelfSigned(true); // Enable for development, disable for production
+                .setProject(conf.appwriteProjectId);
 
             this.databases = new Databases(this.client);
             this.bucket = new Storage(this.client);
