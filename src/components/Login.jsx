@@ -3,77 +3,110 @@ import { Link, useNavigate } from "react-router-dom";
 import { login as authLogin } from "../store/authSlice";
 import { Button, Input, Logo } from "./index";
 import { useDispatch } from "react-redux";
-import authService from "../appwrite/auth";
-import { useForm } from "react-hook-form";
+import { authService } from "../appwrite/auth";
 
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { register, handleSubmit } = useForm();
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: ""
+  });
 
-  const login = async (data) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setError("");
+    setLoading(true);
+    
     try {
-      const session = await authService.login(data);
-      if (session) {
-        const userData = await authService.getCurrentUser();
-        if (userData) dispatch(authLogin(userData));
+      console.log("Attempting login with:", formData.email);
+      const userData = await authService.login(formData);
+      
+      if (userData) {
+        console.log("Login successful, user data:", userData);
+        dispatch(authLogin({ userData }));
         navigate("/");
+      } else {
+        throw new Error("Failed to get user data after login");
       }
     } catch (error) {
-      setError(error.message);
+      console.error("Login error:", error);
+      setError(error.message || "Failed to login. Please check your credentials and try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
+  };
+
   return (
-    <div className="flex items-center justify-center w-full">
-      <div
-        className={`mx-auto w-full msx-w-lg bg-gray-100 rounded-xl 
-            p-10 border border-black/10`}
-      >
-        <div className="mb-2 flex justify-center">
-          <span className="inline-block w-full max-w-[100px]">
-            <Logo width="100%" />
-          </span>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
+        <div className="text-center">
+          <div className="flex justify-center">
+            <Logo width="100px" />
+          </div>
+          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+            Welcome back
+          </h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Don't have an account?{" "}
+            <Link
+              to="/signup"
+              className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+            >
+              Sign up
+            </Link>
+          </p>
         </div>
-        <h2 className="text-center text-2xl font-bold leading-tight">
-          Sign in your account
-        </h2>
-        <p className="mt-2 text-center text-base text-black/60">
-          Don&apos;t have any account?&nbsp;
-          <Link
-            to="/signup"
-            className="font-medium text-primary transition-all duration-200
-            hover::underline"
-          >
-            Sign Up
-          </Link>
-        </p>
-        {error && <p className="text-red-600 mt-8 text-center">{error}</p>}
-        <form onSubmit={handleSubmit(login)} className="mt-8">
-          <div className="space-y-5">
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded relative" role="alert">
+            <span className="block sm:inline">{error}</span>
+          </div>
+        )}
+
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="space-y-4">
             <Input
-              label="Email:"
-              placeholder="Enter your email"
+              label="Email address"
               type="email"
-              {...register("email", {
-                required: true,
-                validate: {
-                  matchPattern: (value) =>
-                    /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i.test(
-                      value
-                    ) || "Email address must be a valid address",
-                },
-              })}
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter your email"
+              required
+              autoComplete="email"
+              className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
             />
-            <Input label="Password:"
-            type="password"
-            placeholder="Enter your password"
-            {...register("password",{
-                required:true,
-            })}/>
-            <Button type="submit" className="w-full">Sign in</Button>
+            <Input
+              label="Password"
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Enter your password"
+              required
+              autoComplete="current-password"
+              className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+            />
+          </div>
+
+          <div>
+            <Button
+              type="submit"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              disabled={loading}
+            >
+              {loading ? "Signing in..." : "Sign in"}
+            </Button>
           </div>
         </form>
       </div>

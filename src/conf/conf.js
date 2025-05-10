@@ -1,9 +1,17 @@
-const conf={
-    appwriteUrl:String(import.meta.env.VITE_APPWRITE_URL),
-    appwriteProjectId:String(import.meta.env.VITE_APPWRITE_PROJECT_ID),
-    appwriteDatabaseIdId:String(import.meta.env.VITE_APPWRITE_DATABASE_ID),
-    appwriteCollectionId:String(import.meta.env.VITE_APPWRITE_COLLECTION_ID),
-    appwriteBucketId:String(import.meta.env.VITE_APPWRITE_BUCKET_ID),
-}
+console.log("Raw Environment Variables:", {
+    VITE_APPWRITE_URL: import.meta.env.VITE_APPWRITE_URL,
+    VITE_APPWRITE_PROJECT_ID: import.meta.env.VITE_APPWRITE_PROJECT_ID,
+    VITE_APPWRITE_DATABASE_ID: import.meta.env.VITE_APPWRITE_DATABASE_ID,
+    VITE_APPWRITE_COLLECTION_ID: import.meta.env.VITE_APPWRITE_COLLECTION_ID,
+    VITE_APPWRITE_BUCKET_ID: import.meta.env.VITE_APPWRITE_BUCKET_ID
+});
 
-export default conf
+const conf = {
+    appwriteUrl: import.meta.env.VITE_APPWRITE_URL,
+    appwriteProjectId: import.meta.env.VITE_APPWRITE_PROJECT_ID,
+    appwriteDatabaseId: import.meta.env.VITE_APPWRITE_DATABASE_ID,
+    appwriteCollectionId: import.meta.env.VITE_APPWRITE_COLLECTION_ID,
+    appwriteBucketId: import.meta.env.VITE_APPWRITE_BUCKET_ID,
+};
+
+export default conf;

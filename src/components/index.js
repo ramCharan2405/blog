@@ -13,7 +13,9 @@ import Button from "./Button"
 import Input from "./Input";
 import AuthLayout from './AuthLayout'
 import Select from './Select'
-export{
+import Loader from "./Loader"
+
+export {
     Header,
     Footer,
     Container,
@@ -27,6 +29,6 @@ export{
     Button,
     Input,
     AuthLayout,
-    Select
-    
+    Select,
+    Loader
 }
